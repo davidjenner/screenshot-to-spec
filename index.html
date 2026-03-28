@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Screenshot to Spec</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #222636;
+      --border: #2e3248;
+      --accent: #6c63ff;
+      --accent-hover: #7d76ff;
+      --text: #e8eaf6;
+      --muted: #8b8fa8;
+      --green: #4caf82;
+      --red: #f4666a;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .api-key-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .api-key-wrap label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .api-key-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.85rem;
+      padding: 7px 12px;
+      width: 280px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .api-key-input:focus { border-color: var(--accent); }
+
+    .key-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .key-status.ok { background: var(--green); }
+
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      height: calc(100vh - 69px);
+    }
+
+    .panel {
+      padding: 28px;
+      overflow-y: auto;
+    }
+
+    .panel-left {
+      border-right: 1px solid var(--border);
+    }
+
+    .panel-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    /* Drop zone */
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: 16px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--surface);
+      position: relative;
+    }
+
+    .dropzone:hover, .dropzone.drag-over {
+      border-color: var(--accent);
+      background: rgba(108, 99, 255, 0.06);
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .dropzone-icon { font-size: 2.5rem; margin-bottom: 12px; }
+
+    .dropzone-text {
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .dropzone-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    /* Preview */
+    .preview-wrap {
+      margin-top: 20px;
+      position: relative;
+    }
+
+    .preview-wrap img {
+      width: 100%;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      display: block;
+    }
+
+    .preview-clear {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      color: #fff;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .preview-clear:hover { background: var(--red); }
+
+    /* Options */
+    .options {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .options-label {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .output-type-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .output-type-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      text-align: left;
+      transition: all 0.15s;
+    }
+
+    .output-type-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    .output-type-btn.active {
+      border-color: var(--accent);
+      background: rgba(108, 99, 255, 0.12);
+      color: var(--text);
+    }
+
+    .output-type-btn .btn-title { font-weight: 600; display: block; margin-bottom: 2px; }
+    .output-type-btn .btn-desc { font-size: 0.75rem; opacity: 0.7; }
+
+    /* Generate button */
+    .generate-btn {
+      margin-top: 20px;
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 13px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .generate-btn:hover:not(:disabled) { background: var(--accent-hover); }
+    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Spinner */
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Right panel output */
+    .output-placeholder {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      text-align: center;
+      gap: 12px;
+    }
+
+    .output-placeholder-icon { font-size: 2.5rem; opacity: 0.4; }
+
+    .output-placeholder p { font-size: 0.9rem; max-width: 240px; line-height: 1.5; }
+
+    .output-area { display: none; flex-direction: column; height: 100%; gap: 16px; }
+    .output-area.visible { display: flex; }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .output-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .copy-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .copy-btn:hover { border-color: var(--accent); }
+    .copy-btn.copied { border-color: var(--green); color: var(--green); }
+
+    .output-box {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      overflow-y: auto;
+      font-family: 'Fira Code', 'Cascadia Code', 'Menlo', monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    /* Rendered markdown-ish output */
+    .output-box h2 { font-size: 0.95rem; color: var(--accent); margin: 16px 0 6px; font-family: inherit; }
+    .output-box h3 { font-size: 0.85rem; color: #aab2f5; margin: 12px 0 4px; font-family: inherit; }
+    .output-box p { margin-bottom: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.88rem; }
+    .output-box code { background: var(--surface2); padding: 1px 5px; border-radius: 4px; }
+    .output-box pre { background: var(--surface2); border-radius: 8px; padding: 12px; margin: 8px 0; overflow-x: auto; }
+
+    .error-msg {
+      background: rgba(244, 102, 106, 0.1);
+      border: 1px solid rgba(244, 102, 106, 0.3);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.85rem;
+      color: var(--red);
+      margin-top: 12px;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      main { grid-template-columns: 1fr; height: auto; }
+      .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
+      .api-key-input { width: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">✦</div>
+    Screenshot to Spec
+  </div>
+  <div class="api-key-wrap">
+    <label for="apiKey">Claude API key</label>
+    <input type="password" id="apiKey" class="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
+    <div class="key-status" id="keyStatus"></div>
+  </div>
+</header>
+
+<main>
+  <!-- LEFT: Upload + options -->
+  <div class="panel panel-left">
+    <div class="panel-title">Upload Screenshot</div>
+
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" accept="image/*" />
+      <div class="dropzone-icon">🖼️</div>
+      <div class="dropzone-text">Drop a screenshot here</div>
+      <div class="dropzone-sub">or click to browse · PNG, JPG, WebP</div>
+    </div>
+
+    <div class="preview-wrap" id="previewWrap" style="display:none">
+      <img id="previewImg" src="" alt="Preview" />
+      <button class="preview-clear" id="clearBtn" title="Remove image">✕</button>
+    </div>
+
+    <div class="options">
+      <div class="options-label">Output format</div>
+      <div class="output-type-grid">
+        <button class="output-type-btn active" data-type="tailwind">
+          <span class="btn-title">Tailwind HTML</span>
+          <span class="btn-desc">HTML + Tailwind classes</span>
+        </button>
+        <button class="output-type-btn" data-type="spec">
+          <span class="btn-title">Component Spec</span>
+          <span class="btn-desc">Structure & hierarchy</span>
+        </button>
+        <button class="output-type-btn" data-type="css">
+          <span class="btn-title">Plain CSS</span>
+          <span class="btn-desc">Semantic HTML + CSS</span>
+        </button>
+        <button class="output-type-btn" data-type="react">
+          <span class="btn-title">React Component</span>
+          <span class="btn-desc">JSX + Tailwind</span>
+        </button>
+      </div>
+    </div>
+
+    <button class="generate-btn" id="generateBtn" disabled>
+      <div class="spinner" id="spinner"></div>
+      <span id="generateLabel">Generate</span>
+    </button>
+
+    <div class="error-msg" id="errorMsg"></div>
+  </div>
+
+  <!-- RIGHT: Output -->
+  <div class="panel panel-right">
+    <div class="output-placeholder" id="outputPlaceholder">
+      <div class="output-placeholder-icon">✦</div>
+      <p>Upload a screenshot and click Generate to get your component spec or code.</p>
+    </div>
+
+    <div class="output-area" id="outputArea">
+      <div class="output-header">
+        <div class="output-meta" id="outputMeta"></div>
+        <button class="copy-btn" id="copyBtn">
+          <span>📋</span> Copy
+        </button>
+      </div>
+      <div class="output-box" id="outputBox"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  const apiKeyInput = document.getElementById('apiKey');
+  const keyStatus = document.getElementById('keyStatus');
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const previewWrap = document.getElementById('previewWrap');
+  const previewImg = document.getElementById('previewImg');
+  const clearBtn = document.getElementById('clearBtn');
+  const generateBtn = document.getElementById('generateBtn');
+  const generateLabel = document.getElementById('generateLabel');
+  const spinner = document.getElementById('spinner');
+  const errorMsg = document.getElementById('errorMsg');
+  const outputPlaceholder = document.getElementById('outputPlaceholder');
+  const outputArea = document.getElementById('outputArea');
+  const outputBox = document.getElementById('outputBox');
+  const outputMeta = document.getElementById('outputMeta');
+  const copyBtn = document.getElementById('copyBtn');
+
+  let imageData = null;
+  let imageMime = null;
+  let selectedType = 'tailwind';
+
+  // Persist API key
+  const saved = localStorage.getItem('s2s_api_key');
+  if (saved) { apiKeyInput.value = saved; updateKeyStatus(); }
+
+  apiKeyInput.addEventListener('input', () => {
+    localStorage.setItem('s2s_api_key', apiKeyInput.value.trim());
+    updateKeyStatus();
+    updateGenerateBtn();
+  });
+
+  function updateKeyStatus() {
+    const ok = apiKeyInput.value.trim().startsWith('sk-ant-');
+    keyStatus.className = 'key-status' + (ok ? ' ok' : '');
+  }
+
+  // Output type selection
+  document.querySelectorAll('.output-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.output-type-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      selectedType = btn.dataset.type;
+    });
+  });
+
+  // Drag and drop
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) loadFile(file);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) loadFile(fileInput.files[0]);
+  });
+
+  clearBtn.addEventListener('click', () => {
+    imageData = null; imageMime = null;
+    previewWrap.style.display = 'none';
+    previewImg.src = '';
+    fileInput.value = '';
+    updateGenerateBtn();
+  });
+
+  function loadFile(file) {
+    if (!file.type.startsWith('image/')) { showError('Please upload an image file.'); return; }
+    imageMime = file.type;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const result = e.target.result;
+      imageData = result.split(',')[1]; // base64 only
+      previewImg.src = result;
+      previewWrap.style.display = 'block';
+      hideError();
+      updateGenerateBtn();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function updateGenerateBtn() {
+    generateBtn.disabled = !(imageData && apiKeyInput.value.trim().startsWith('sk-ant-'));
+  }
+
+  // Generate
+  generateBtn.addEventListener('click', async () => {
+    const key = apiKeyInput.value.trim();
+    if (!key || !imageData) return;
+
+    setLoading(true);
+    hideError();
+
+    const prompts = {
+      tailwind: `Analyze this UI screenshot and produce clean, semantic HTML with Tailwind CSS classes that faithfully recreates the layout and design. Include all visible text content as placeholders. Output only the HTML code block, no explanation.`,
+      spec: `Analyze this UI screenshot and provide a detailed component specification including:
+1. Component hierarchy and structure
+2. Layout type (flex/grid) and spacing patterns
+3. Typography styles (sizes, weights, colors)
+4. Color palette (hex values where identifiable)
+5. Interactive elements and states
+6. Responsive considerations
+Be precise and developer-ready.`,
+      css: `Analyze this UI screenshot and produce semantic HTML5 with a complete plain CSS stylesheet that recreates the layout and design. Use BEM-style class names. Output the HTML first, then the CSS. No Tailwind. No explanation.`,
+      react: `Analyze this UI screenshot and produce a React functional component with Tailwind CSS classes that recreates the layout. Use clean JSX, props where sensible, and include placeholder content. Output only the component code, no explanation.`,
+    };
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'content-type': 'application/json',
+          'anthropic-dangerous-allow-browser': 'true',
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 4096,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: imageMime, data: imageData } },
+              { type: 'text', text: prompts[selectedType] }
+            ]
+          }]
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `API error ${res.status}`);
+      }
+
+      const data = await res.json();
+      const text = data.content?.[0]?.text || '';
+      const typeLabels = { tailwind: 'Tailwind HTML', spec: 'Component Spec', css: 'Plain CSS', react: 'React Component' };
+
+      outputBox.textContent = text;
+      outputMeta.textContent = typeLabels[selectedType];
+      outputPlaceholder.style.display = 'none';
+      outputArea.classList.add('visible');
+
+    } catch (err) {
+      showError(err.message || 'Something went wrong. Check your API key and try again.');
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  // Copy
+  copyBtn.addEventListener('click', () => {
+    navigator.clipboard.writeText(outputBox.textContent).then(() => {
+      copyBtn.classList.add('copied');
+      copyBtn.innerHTML = '<span>✓</span> Copied!';
+      setTimeout(() => {
+        copyBtn.classList.remove('copied');
+        copyBtn.innerHTML = '<span>📋</span> Copy';
+      }, 2000);
+    });
+  });
+
+  function setLoading(on) {
+    generateBtn.disabled = on;
+    spinner.style.display = on ? 'block' : 'none';
+    generateLabel.textContent = on ? 'Generating…' : 'Generate';
+  }
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorMsg.style.display = 'block';
+  }
+
+  function hideError() {
+    errorMsg.style.display = 'none';
+  }
+</script>
+</body>
+</html>
