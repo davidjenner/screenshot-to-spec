@@ -366,7 +366,9 @@
     Screenshot to Spec
   </div>
   <div class="api-key-wrap">
-    <label for="apiKey">Claude API key</label>
+    <label for="proxyUrl">Proxy URL</label>
+    <input type="text" id="proxyUrl" class="api-key-input" style="width:210px" placeholder="https://your-worker.workers.dev" autocomplete="off" />
+    <label for="apiKey" style="margin-left:8px">API key</label>
     <input type="password" id="apiKey" class="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
     <div class="key-status" id="keyStatus"></div>
   </div>
@@ -440,6 +442,7 @@
 
 <script>
   const apiKeyInput = document.getElementById('apiKey');
+  const proxyUrlInput = document.getElementById('proxyUrl');
   const keyStatus = document.getElementById('keyStatus');
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('fileInput');
@@ -460,13 +463,20 @@
   let imageMime = null;
   let selectedType = 'tailwind';
 
-  // Persist API key
+  // Persist settings
   const saved = localStorage.getItem('s2s_api_key');
   if (saved) { apiKeyInput.value = saved; updateKeyStatus(); }
+  const savedProxy = localStorage.getItem('s2s_proxy_url');
+  if (savedProxy) { proxyUrlInput.value = savedProxy; }
 
   apiKeyInput.addEventListener('input', () => {
     localStorage.setItem('s2s_api_key', apiKeyInput.value.trim());
     updateKeyStatus();
+    updateGenerateBtn();
+  });
+
+  proxyUrlInput.addEventListener('input', () => {
+    localStorage.setItem('s2s_proxy_url', proxyUrlInput.value.trim());
     updateGenerateBtn();
   });
 
@@ -522,13 +532,14 @@
   }
 
   function updateGenerateBtn() {
-    generateBtn.disabled = !(imageData && apiKeyInput.value.trim().startsWith('sk-ant-'));
+    generateBtn.disabled = !(imageData && apiKeyInput.value.trim().startsWith('sk-ant-') && proxyUrlInput.value.trim().startsWith('https://'));
   }
 
   // Generate
   generateBtn.addEventListener('click', async () => {
     const key = apiKeyInput.value.trim();
-    if (!key || !imageData) return;
+    const proxy = proxyUrlInput.value.trim().replace(/\/$/, '');
+    if (!key || !imageData || !proxy) return;
 
     setLoading(true);
     hideError();
@@ -548,7 +559,7 @@ Be precise and developer-ready.`,
     };
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch(proxy + '/v1/messages', {
         method: 'POST',
         headers: {
           'x-api-key': key,
