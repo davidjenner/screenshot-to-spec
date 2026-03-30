@@ -20,341 +20,88 @@
       --red: #f4666a;
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+    header { padding: 16px 28px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+    .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 1.05rem; letter-spacing: -0.02em; flex-shrink: 0; }
+    .logo-icon { width: 30px; height: 30px; background: var(--accent); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 15px; }
+
+    .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .header-controls label { font-size: 0.78rem; color: var(--muted); white-space: nowrap; }
+
+    .ctrl-input {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 7px;
+      color: var(--text); font-size: 0.82rem; padding: 6px 10px; outline: none; transition: border-color 0.2s;
     }
+    .ctrl-input:focus { border-color: var(--accent); }
+    select.ctrl-input { cursor: pointer; }
 
-    header {
-      padding: 20px 32px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
+    #proxyInput { width: 200px; }
+    #apiKeyInput { width: 220px; }
 
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: 700;
-      font-size: 1.1rem;
-      letter-spacing: -0.02em;
-    }
-
-    .logo-icon {
-      width: 32px;
-      height: 32px;
-      background: var(--accent);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-
-    .api-key-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .api-key-wrap label {
-      font-size: 0.8rem;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-
-    .api-key-input {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--text);
-      font-size: 0.85rem;
-      padding: 7px 12px;
-      width: 280px;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .api-key-input:focus { border-color: var(--accent); }
-
-    .key-status {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--border);
-      flex-shrink: 0;
-      transition: background 0.2s;
-    }
-
+    .key-status { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; transition: background 0.2s; }
     .key-status.ok { background: var(--green); }
 
-    main {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      height: calc(100vh - 69px);
-    }
+    main { flex: 1; display: grid; grid-template-columns: 1fr 1fr; height: calc(100vh - 61px); }
 
-    .panel {
-      padding: 28px;
-      overflow-y: auto;
-    }
+    .panel { padding: 24px; overflow-y: auto; }
+    .panel-left { border-right: 1px solid var(--border); }
 
-    .panel-left {
-      border-right: 1px solid var(--border);
-    }
+    .panel-title { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 14px; }
 
-    .panel-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-
-    /* Drop zone */
     .dropzone {
-      border: 2px dashed var(--border);
-      border-radius: 16px;
-      padding: 48px 24px;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      background: var(--surface);
-      position: relative;
+      border: 2px dashed var(--border); border-radius: 14px; padding: 40px 20px;
+      text-align: center; cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      background: var(--surface); position: relative;
     }
+    .dropzone:hover, .dropzone.drag-over { border-color: var(--accent); background: rgba(108,99,255,0.06); }
+    .dropzone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .dropzone-icon { font-size: 2.2rem; margin-bottom: 10px; }
+    .dropzone-text { font-size: 0.92rem; font-weight: 500; margin-bottom: 4px; }
+    .dropzone-sub { font-size: 0.78rem; color: var(--muted); }
 
-    .dropzone:hover, .dropzone.drag-over {
-      border-color: var(--accent);
-      background: rgba(108, 99, 255, 0.06);
-    }
-
-    .dropzone input[type="file"] {
-      position: absolute;
-      inset: 0;
-      opacity: 0;
-      cursor: pointer;
-      width: 100%;
-      height: 100%;
-    }
-
-    .dropzone-icon { font-size: 2.5rem; margin-bottom: 12px; }
-
-    .dropzone-text {
-      font-size: 0.95rem;
-      font-weight: 500;
-      margin-bottom: 6px;
-    }
-
-    .dropzone-sub {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    /* Preview */
-    .preview-wrap {
-      margin-top: 20px;
-      position: relative;
-    }
-
-    .preview-wrap img {
-      width: 100%;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      display: block;
-    }
-
-    .preview-clear {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0,0,0,0.6);
-      border: none;
-      color: #fff;
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
-    }
-
+    .preview-wrap { margin-top: 16px; position: relative; }
+    .preview-wrap img { width: 100%; border-radius: 10px; border: 1px solid var(--border); display: block; }
+    .preview-clear { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,0.6); border: none; color: #fff; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
     .preview-clear:hover { background: var(--red); }
 
-    /* Options */
-    .options {
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .options-label {
-      font-size: 0.8rem;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .output-type-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-
-    .output-type-btn {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      color: var(--muted);
-      padding: 10px 12px;
-      cursor: pointer;
-      font-size: 0.82rem;
-      text-align: left;
-      transition: all 0.15s;
-    }
-
+    .options { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .options-label { font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+    .output-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .output-type-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: 7px; color: var(--muted); padding: 9px 11px; cursor: pointer; font-size: 0.8rem; text-align: left; transition: all 0.15s; }
     .output-type-btn:hover { border-color: var(--accent); color: var(--text); }
-
-    .output-type-btn.active {
-      border-color: var(--accent);
-      background: rgba(108, 99, 255, 0.12);
-      color: var(--text);
-    }
-
+    .output-type-btn.active { border-color: var(--accent); background: rgba(108,99,255,0.12); color: var(--text); }
     .output-type-btn .btn-title { font-weight: 600; display: block; margin-bottom: 2px; }
-    .output-type-btn .btn-desc { font-size: 0.75rem; opacity: 0.7; }
+    .output-type-btn .btn-desc { font-size: 0.73rem; opacity: 0.7; }
 
-    /* Generate button */
-    .generate-btn {
-      margin-top: 20px;
-      width: 100%;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 13px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s, opacity 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
+    .generate-btn { margin-top: 16px; width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 9px; padding: 12px; font-size: 0.92rem; font-weight: 600; cursor: pointer; transition: background 0.2s, opacity 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .generate-btn:hover:not(:disabled) { background: var(--accent-hover); }
-    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .generate-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Spinner */
-    .spinner {
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: #fff;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      display: none;
-    }
-
+    .spinner { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Right panel output */
-    .output-placeholder {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--muted);
-      text-align: center;
-      gap: 12px;
-    }
+    .error-msg { background: rgba(244,102,106,0.1); border: 1px solid rgba(244,102,106,0.3); border-radius: 9px; padding: 12px 14px; font-size: 0.83rem; color: var(--red); margin-top: 10px; display: none; }
 
-    .output-placeholder-icon { font-size: 2.5rem; opacity: 0.4; }
+    .output-placeholder { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); text-align: center; gap: 10px; }
+    .output-placeholder-icon { font-size: 2.2rem; opacity: 0.35; }
+    .output-placeholder p { font-size: 0.88rem; max-width: 220px; line-height: 1.5; }
 
-    .output-placeholder p { font-size: 0.9rem; max-width: 240px; line-height: 1.5; }
-
-    .output-area { display: none; flex-direction: column; height: 100%; gap: 16px; }
+    .output-area { display: none; flex-direction: column; height: 100%; gap: 12px; }
     .output-area.visible { display: flex; }
-
-    .output-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .output-meta {
-      font-size: 0.8rem;
-      color: var(--muted);
-    }
-
-    .copy-btn {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      border-radius: 7px;
-      padding: 6px 12px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
+    .output-header { display: flex; align-items: center; justify-content: space-between; }
+    .output-meta { font-size: 0.78rem; color: var(--muted); }
+    .copy-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 5px 11px; font-size: 0.78rem; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 5px; }
     .copy-btn:hover { border-color: var(--accent); }
     .copy-btn.copied { border-color: var(--green); color: var(--green); }
-
-    .output-box {
-      flex: 1;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 20px;
-      overflow-y: auto;
-      font-family: 'Fira Code', 'Cascadia Code', 'Menlo', monospace;
-      font-size: 0.82rem;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: var(--text);
-    }
-
-    /* Rendered markdown-ish output */
-    .output-box h2 { font-size: 0.95rem; color: var(--accent); margin: 16px 0 6px; font-family: inherit; }
-    .output-box h3 { font-size: 0.85rem; color: #aab2f5; margin: 12px 0 4px; font-family: inherit; }
-    .output-box p { margin-bottom: 8px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 0.88rem; }
-    .output-box code { background: var(--surface2); padding: 1px 5px; border-radius: 4px; }
-    .output-box pre { background: var(--surface2); border-radius: 8px; padding: 12px; margin: 8px 0; overflow-x: auto; }
-
-    .error-msg {
-      background: rgba(244, 102, 106, 0.1);
-      border: 1px solid rgba(244, 102, 106, 0.3);
-      border-radius: 10px;
-      padding: 14px 16px;
-      font-size: 0.85rem;
-      color: var(--red);
-      margin-top: 12px;
-      display: none;
-    }
+    .output-box { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; overflow-y: auto; font-family: 'Fira Code', 'Cascadia Code', 'Menlo', monospace; font-size: 0.81rem; line-height: 1.7; white-space: pre-wrap; word-break: break-word; color: var(--text); }
 
     @media (max-width: 768px) {
       main { grid-template-columns: 1fr; height: auto; }
       .panel-left { border-right: none; border-bottom: 1px solid var(--border); }
-      .api-key-input { width: 180px; }
+      #proxyInput, #apiKeyInput { width: 150px; }
     }
   </style>
 </head>
@@ -365,17 +112,23 @@
     <div class="logo-icon">✦</div>
     Screenshot to Spec
   </div>
-  <div class="api-key-wrap">
-    <label for="proxyUrl">Proxy URL</label>
-    <input type="text" id="proxyUrl" class="api-key-input" style="width:210px" placeholder="https://your-worker.workers.dev" autocomplete="off" />
-    <label for="apiKey" style="margin-left:8px">API key</label>
-    <input type="password" id="apiKey" class="api-key-input" placeholder="sk-ant-..." autocomplete="off" />
+  <div class="header-controls">
+    <label for="providerSelect">Provider</label>
+    <select id="providerSelect" class="ctrl-input">
+      <option value="claude">Claude (Anthropic)</option>
+      <option value="groq">Groq (Llama Vision)</option>
+    </select>
+
+    <label for="proxyInput">Proxy URL</label>
+    <input type="text" id="proxyInput" class="ctrl-input" placeholder="https://your-worker.workers.dev" autocomplete="off" />
+
+    <label for="apiKeyInput" id="apiKeyLabel">API key</label>
+    <input type="password" id="apiKeyInput" class="ctrl-input" placeholder="sk-ant-..." autocomplete="off" />
     <div class="key-status" id="keyStatus"></div>
   </div>
 </header>
 
 <main>
-  <!-- LEFT: Upload + options -->
   <div class="panel panel-left">
     <div class="panel-title">Upload Screenshot</div>
 
@@ -388,7 +141,7 @@
 
     <div class="preview-wrap" id="previewWrap" style="display:none">
       <img id="previewImg" src="" alt="Preview" />
-      <button class="preview-clear" id="clearBtn" title="Remove image">✕</button>
+      <button class="preview-clear" id="clearBtn" title="Remove">✕</button>
     </div>
 
     <div class="options">
@@ -421,19 +174,15 @@
     <div class="error-msg" id="errorMsg"></div>
   </div>
 
-  <!-- RIGHT: Output -->
   <div class="panel panel-right">
     <div class="output-placeholder" id="outputPlaceholder">
       <div class="output-placeholder-icon">✦</div>
       <p>Upload a screenshot and click Generate to get your component spec or code.</p>
     </div>
-
     <div class="output-area" id="outputArea">
       <div class="output-header">
         <div class="output-meta" id="outputMeta"></div>
-        <button class="copy-btn" id="copyBtn">
-          <span>📋</span> Copy
-        </button>
+        <button class="copy-btn" id="copyBtn"><span>📋</span> Copy</button>
       </div>
       <div class="output-box" id="outputBox"></div>
     </div>
@@ -441,8 +190,10 @@
 </main>
 
 <script>
-  const apiKeyInput = document.getElementById('apiKey');
-  const proxyUrlInput = document.getElementById('proxyUrl');
+  const providerSelect = document.getElementById('providerSelect');
+  const proxyInput = document.getElementById('proxyInput');
+  const apiKeyInput = document.getElementById('apiKeyInput');
+  const apiKeyLabel = document.getElementById('apiKeyLabel');
   const keyStatus = document.getElementById('keyStatus');
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('fileInput');
@@ -463,29 +214,58 @@
   let imageMime = null;
   let selectedType = 'tailwind';
 
-  // Persist settings
-  const saved = localStorage.getItem('s2s_api_key');
-  if (saved) { apiKeyInput.value = saved; updateKeyStatus(); }
-  const savedProxy = localStorage.getItem('s2s_proxy_url');
-  if (savedProxy) { proxyUrlInput.value = savedProxy; }
+  // Restore saved settings
+  providerSelect.value = localStorage.getItem('s2s_provider') || 'claude';
+  proxyInput.value = localStorage.getItem('s2s_proxy') || '';
+  apiKeyInput.value = localStorage.getItem('s2s_key') || '';
+  updateProviderUI();
+  updateKeyStatus();
+  updateGenerateBtn();
 
-  apiKeyInput.addEventListener('input', () => {
-    localStorage.setItem('s2s_api_key', apiKeyInput.value.trim());
+  providerSelect.addEventListener('change', () => {
+    localStorage.setItem('s2s_provider', providerSelect.value);
+    updateProviderUI();
     updateKeyStatus();
     updateGenerateBtn();
   });
 
-  proxyUrlInput.addEventListener('input', () => {
-    localStorage.setItem('s2s_proxy_url', proxyUrlInput.value.trim());
+  proxyInput.addEventListener('input', () => {
+    localStorage.setItem('s2s_proxy', proxyInput.value.trim());
     updateGenerateBtn();
   });
 
+  apiKeyInput.addEventListener('input', () => {
+    localStorage.setItem('s2s_key', apiKeyInput.value.trim());
+    updateKeyStatus();
+    updateGenerateBtn();
+  });
+
+  function updateProviderUI() {
+    if (providerSelect.value === 'groq') {
+      apiKeyLabel.textContent = 'Groq key';
+      apiKeyInput.placeholder = 'gsk_...';
+    } else {
+      apiKeyLabel.textContent = 'API key';
+      apiKeyInput.placeholder = 'sk-ant-...';
+    }
+  }
+
   function updateKeyStatus() {
-    const ok = apiKeyInput.value.trim().startsWith('sk-ant-');
+    const key = apiKeyInput.value.trim();
+    const ok = providerSelect.value === 'groq'
+      ? key.startsWith('gsk_')
+      : key.startsWith('sk-ant-');
     keyStatus.className = 'key-status' + (ok ? ' ok' : '');
   }
 
-  // Output type selection
+  function updateGenerateBtn() {
+    const key = apiKeyInput.value.trim();
+    const proxy = proxyInput.value.trim();
+    const keyOk = providerSelect.value === 'groq' ? key.startsWith('gsk_') : key.startsWith('sk-ant-');
+    generateBtn.disabled = !(imageData && keyOk && proxy.startsWith('https://'));
+  }
+
+  // Output type
   document.querySelectorAll('.output-type-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.output-type-btn').forEach(b => b.classList.remove('active'));
@@ -494,25 +274,16 @@
     });
   });
 
-  // Drag and drop
+  // Drag & drop
   dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('drag-over'); });
   dropzone.addEventListener('dragleave', () => dropzone.classList.remove('drag-over'));
-  dropzone.addEventListener('drop', e => {
-    e.preventDefault();
-    dropzone.classList.remove('drag-over');
-    const file = e.dataTransfer.files[0];
-    if (file) loadFile(file);
-  });
-
-  fileInput.addEventListener('change', () => {
-    if (fileInput.files[0]) loadFile(fileInput.files[0]);
-  });
+  dropzone.addEventListener('drop', e => { e.preventDefault(); dropzone.classList.remove('drag-over'); if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]); });
+  fileInput.addEventListener('change', () => { if (fileInput.files[0]) loadFile(fileInput.files[0]); });
 
   clearBtn.addEventListener('click', () => {
     imageData = null; imageMime = null;
     previewWrap.style.display = 'none';
-    previewImg.src = '';
-    fileInput.value = '';
+    previewImg.src = ''; fileInput.value = '';
     updateGenerateBtn();
   });
 
@@ -521,32 +292,18 @@
     imageMime = file.type;
     const reader = new FileReader();
     reader.onload = e => {
-      const result = e.target.result;
-      imageData = result.split(',')[1]; // base64 only
-      previewImg.src = result;
+      imageData = e.target.result.split(',')[1];
+      previewImg.src = e.target.result;
       previewWrap.style.display = 'block';
-      hideError();
-      updateGenerateBtn();
+      hideError(); updateGenerateBtn();
     };
     reader.readAsDataURL(file);
   }
 
-  function updateGenerateBtn() {
-    generateBtn.disabled = !(imageData && apiKeyInput.value.trim().startsWith('sk-ant-') && proxyUrlInput.value.trim().startsWith('https://'));
-  }
-
-  // Generate
-  generateBtn.addEventListener('click', async () => {
-    const key = apiKeyInput.value.trim();
-    const proxy = proxyUrlInput.value.trim().replace(/\/$/, '');
-    if (!key || !imageData || !proxy) return;
-
-    setLoading(true);
-    hideError();
-
-    const prompts = {
-      tailwind: `Analyze this UI screenshot and produce clean, semantic HTML with Tailwind CSS classes that faithfully recreates the layout and design. Include all visible text content as placeholders. Output only the HTML code block, no explanation.`,
-      spec: `Analyze this UI screenshot and provide a detailed component specification including:
+  // Prompts
+  const prompts = {
+    tailwind: `Analyze this UI screenshot and produce clean, semantic HTML with Tailwind CSS classes that faithfully recreates the layout and design. Include all visible text content as placeholders. Output only the HTML code block, no explanation.`,
+    spec: `Analyze this UI screenshot and provide a detailed component specification including:
 1. Component hierarchy and structure
 2. Layout type (flex/grid) and spacing patterns
 3. Typography styles (sizes, weights, colors)
@@ -554,43 +311,80 @@
 5. Interactive elements and states
 6. Responsive considerations
 Be precise and developer-ready.`,
-      css: `Analyze this UI screenshot and produce semantic HTML5 with a complete plain CSS stylesheet that recreates the layout and design. Use BEM-style class names. Output the HTML first, then the CSS. No Tailwind. No explanation.`,
-      react: `Analyze this UI screenshot and produce a React functional component with Tailwind CSS classes that recreates the layout. Use clean JSX, props where sensible, and include placeholder content. Output only the component code, no explanation.`,
-    };
+    css: `Analyze this UI screenshot and produce semantic HTML5 with a complete plain CSS stylesheet that recreates the layout and design. Use BEM-style class names. Output the HTML first, then the CSS. No Tailwind. No explanation.`,
+    react: `Analyze this UI screenshot and produce a React functional component with Tailwind CSS classes that recreates the layout. Use clean JSX, props where sensible, and include placeholder content. Output only the component code, no explanation.`,
+  };
+
+  // Generate
+  generateBtn.addEventListener('click', async () => {
+    const key = apiKeyInput.value.trim();
+    const proxy = proxyInput.value.trim().replace(/\/$/, '');
+    const provider = providerSelect.value;
+    if (!key || !imageData || !proxy) return;
+
+    setLoading(true); hideError();
 
     try {
-      const res = await fetch(proxy + '/v1/messages', {
-        method: 'POST',
-        headers: {
-          'x-api-key': key,
-          'anthropic-version': '2023-06-01',
-          'content-type': 'application/json',
-          'anthropic-dangerous-allow-browser': 'true',
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 4096,
-          messages: [{
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: imageMime, data: imageData } },
-              { type: 'text', text: prompts[selectedType] }
-            ]
-          }]
-        })
-      });
+      let res;
+
+      if (provider === 'claude') {
+        res = await fetch(proxy + '/v1/messages', {
+          method: 'POST',
+          headers: {
+            'x-api-key': key,
+            'anthropic-version': '2023-06-01',
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 4096,
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'image', source: { type: 'base64', media_type: imageMime, data: imageData } },
+                { type: 'text', text: prompts[selectedType] }
+              ]
+            }]
+          })
+        });
+      } else {
+        // Groq — OpenAI-compatible vision API
+        res = await fetch(proxy + '/groq/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + key,
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'llama-3.2-90b-vision-preview',
+            max_tokens: 4096,
+            messages: [{
+              role: 'user',
+              content: [
+                { type: 'image_url', image_url: { url: `data:${imageMime};base64,${imageData}` } },
+                { type: 'text', text: prompts[selectedType] }
+              ]
+            }]
+          })
+        });
+      }
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err?.error?.message || `API error ${res.status}`);
+        const msg = err?.error?.message || (provider === 'claude' ? err?.error : null) || `API error ${res.status}`;
+        throw new Error(msg);
       }
 
       const data = await res.json();
-      const text = data.content?.[0]?.text || '';
+      const text = provider === 'claude'
+        ? (data.content?.[0]?.text || '')
+        : (data.choices?.[0]?.message?.content || '');
+
       const typeLabels = { tailwind: 'Tailwind HTML', spec: 'Component Spec', css: 'Plain CSS', react: 'React Component' };
+      const providerLabel = provider === 'claude' ? 'Claude 3.5 Sonnet' : 'Groq Llama Vision';
 
       outputBox.textContent = text;
-      outputMeta.textContent = typeLabels[selectedType];
+      outputMeta.textContent = `${typeLabels[selectedType]} · ${providerLabel}`;
       outputPlaceholder.style.display = 'none';
       outputArea.classList.add('visible');
 
@@ -601,15 +395,11 @@ Be precise and developer-ready.`,
     }
   });
 
-  // Copy
   copyBtn.addEventListener('click', () => {
     navigator.clipboard.writeText(outputBox.textContent).then(() => {
       copyBtn.classList.add('copied');
       copyBtn.innerHTML = '<span>✓</span> Copied!';
-      setTimeout(() => {
-        copyBtn.classList.remove('copied');
-        copyBtn.innerHTML = '<span>📋</span> Copy';
-      }, 2000);
+      setTimeout(() => { copyBtn.classList.remove('copied'); copyBtn.innerHTML = '<span>📋</span> Copy'; }, 2000);
     });
   });
 
@@ -618,15 +408,8 @@ Be precise and developer-ready.`,
     spinner.style.display = on ? 'block' : 'none';
     generateLabel.textContent = on ? 'Generating…' : 'Generate';
   }
-
-  function showError(msg) {
-    errorMsg.textContent = msg;
-    errorMsg.style.display = 'block';
-  }
-
-  function hideError() {
-    errorMsg.style.display = 'none';
-  }
+  function showError(msg) { errorMsg.textContent = msg; errorMsg.style.display = 'block'; }
+  function hideError() { errorMsg.style.display = 'none'; }
 </script>
 </body>
 </html>

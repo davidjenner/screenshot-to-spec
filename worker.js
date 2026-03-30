@@ -1,6 +1,6 @@
-// Cloudflare Worker — CORS proxy for Anthropic API
-// Deploy at: https://dash.cloudflare.com → Workers & Pages → Create Worker
-// Paste this code, deploy, then copy the worker URL into index.html
+// Cloudflare Worker — CORS proxy for Anthropic + Groq APIs
+// Deploy at: https://dash.cloudflare.com → Workers & Pages → Create application → Worker
+// Paste this code, click Deploy, then copy the worker URL into the site's Proxy URL field.
 
 export default {
   async fetch(request) {
@@ -10,26 +10,42 @@ export default {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, x-api-key, anthropic-version, anthropic-dangerous-allow-browser',
+          'Access-Control-Allow-Headers': 'Content-Type, x-api-key, anthropic-version, Authorization',
           'Access-Control-Max-Age': '86400',
         },
       });
     }
 
     if (request.method !== 'POST') {
-      return new Response('Method not allowed', { status: 405 });
+      return new Response('OK', { status: 200, headers: { 'Access-Control-Allow-Origin': '*' } });
     }
 
     const url = new URL(request.url);
-    const target = 'https://api.anthropic.com' + url.pathname;
+    const path = url.pathname;
 
-    const upstream = await fetch(target, {
-      method: 'POST',
-      headers: {
+    let targetUrl, upstreamHeaders;
+
+    if (path.startsWith('/groq/')) {
+      // Groq: /groq/openai/v1/chat/completions → https://api.groq.com/openai/v1/chat/completions
+      const groqPath = path.replace(/^\/groq/, '');
+      targetUrl = 'https://api.groq.com' + groqPath;
+      upstreamHeaders = {
+        'content-type': 'application/json',
+        'Authorization': request.headers.get('Authorization') || '',
+      };
+    } else {
+      // Anthropic: /v1/messages → https://api.anthropic.com/v1/messages
+      targetUrl = 'https://api.anthropic.com' + path;
+      upstreamHeaders = {
         'content-type': 'application/json',
         'x-api-key': request.headers.get('x-api-key') || '',
         'anthropic-version': request.headers.get('anthropic-version') || '2023-06-01',
-      },
+      };
+    }
+
+    const upstream = await fetch(targetUrl, {
+      method: 'POST',
+      headers: upstreamHeaders,
       body: request.body,
     });
 
