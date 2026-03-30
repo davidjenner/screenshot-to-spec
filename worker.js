@@ -1,15 +1,28 @@
 // Cloudflare Worker — CORS proxy for Anthropic + Groq APIs
-// Deploy at: https://dash.cloudflare.com → Workers & Pages → Create application → Worker
-// Paste this code, click Deploy, then copy the worker URL into the site's Proxy URL field.
+// IMPORTANT: After updating this file, you must repaste the code into the Cloudflare
+// Worker dashboard and click Save & Deploy — pushing to GitHub does NOT auto-update it.
+//
+// To verify the worker is running, visit: https://your-worker.workers.dev/ping
+// You should see: {"ok":true,"message":"proxy is running"}
 
 export default {
   async fetch(request) {
-    // Handle CORS preflight
+    const url = new URL(request.url);
+    const path = url.pathname;
+
+    // Health check — visit /ping in browser to confirm worker is live
+    if (path === '/ping') {
+      return new Response(JSON.stringify({ ok: true, message: 'proxy is running' }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
+
+    // CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, {
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type, x-api-key, anthropic-version, Authorization',
           'Access-Control-Max-Age': '86400',
         },
@@ -17,16 +30,15 @@ export default {
     }
 
     if (request.method !== 'POST') {
-      return new Response('OK', { status: 200, headers: { 'Access-Control-Allow-Origin': '*' } });
+      return new Response(JSON.stringify({ ok: true }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
     }
-
-    const url = new URL(request.url);
-    const path = url.pathname;
 
     let targetUrl, upstreamHeaders;
 
     if (path.startsWith('/groq/')) {
-      // Groq: /groq/openai/v1/chat/completions → https://api.groq.com/openai/v1/chat/completions
+      // Groq: strip /groq prefix → https://api.groq.com/openai/v1/chat/completions
       const groqPath = path.replace(/^\/groq/, '');
       targetUrl = 'https://api.groq.com' + groqPath;
       upstreamHeaders = {
@@ -43,20 +55,24 @@ export default {
       };
     }
 
-    const upstream = await fetch(targetUrl, {
-      method: 'POST',
-      headers: upstreamHeaders,
-      body: request.body,
-    });
+    try {
+      const upstream = await fetch(targetUrl, {
+        method: 'POST',
+        headers: upstreamHeaders,
+        body: request.body,
+      });
 
-    const body = await upstream.text();
+      const body = await upstream.text();
 
-    return new Response(body, {
-      status: upstream.status,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+      return new Response(body, {
+        status: upstream.status,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    } catch (err) {
+      return new Response(JSON.stringify({ error: { message: err.message } }), {
+        status: 502,
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      });
+    }
   },
 };
